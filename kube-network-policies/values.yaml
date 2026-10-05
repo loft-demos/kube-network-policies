@@ -1,0 +1,75 @@
+image:
+  # registry is prepended to repository. Override it for mirrored or air-gapped registries.
+  registry: registry.k8s.io
+  repository: networking/kube-network-policies
+  # tag defaults to the chart appVersion.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+# logLevel is passed to the agent as --v.
+logLevel: 2
+
+# nfqueueId is the netfilter queue the agent uses. Change it only if another
+# component on the node already uses the same queue.
+nfqueueId: 98
+
+# clusterNetworkPolicy enables ClusterNetworkPolicy (policy.networking.k8s.io/v1alpha2)
+# enforcement on top of standard NetworkPolicies. Upstream ships this as a
+# separate image build, so the chart appends "-npa-v1alpha2" to the image tag.
+# AdminNetworkPolicy and BaselineAdminNetworkPolicy (v1alpha1) are not
+# supported: no published image enforces them.
+clusterNetworkPolicy:
+  enabled: false
+
+crds:
+  # install renders the ClusterNetworkPolicy CRD (network-policy-api v0.2.0,
+  # standard channel) with the release. Only used when
+  # clusterNetworkPolicy.enabled is true. Set it to false if the CRD is
+  # managed elsewhere.
+  install: true
+  # keep adds helm.sh/resource-policy: keep so uninstalling the release, or
+  # turning clusterNetworkPolicy off, leaves the CRD and every
+  # ClusterNetworkPolicy object in place.
+  keep: true
+
+# extraArgs are appended to the agent arguments.
+extraArgs: []
+
+serviceAccount:
+  name: ""
+  annotations: {}
+
+rbac:
+  create: true
+
+daemonset:
+  annotations: {}
+  labels: {}
+  podAnnotations: {}
+  # system-node-critical keeps the agent from being evicted before the
+  # workloads it protects.
+  priorityClassName: system-node-critical
+  nodeSelector:
+    kubernetes.io/os: linux
+  # Tolerate every taint so the agent runs on all nodes, including nodes that
+  # are not Ready yet because the CNI is still starting.
+  tolerations:
+    - operator: Exists
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 50Mi
+  securityContext:
+    privileged: true
+    capabilities:
+      add: ["NET_ADMIN"]
+  extraEnv: []

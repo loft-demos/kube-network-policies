@@ -1,0 +1,13 @@
+apiVersion: v2
+name: kube-network-policies
+description: kube-network-policies agent that enforces Kubernetes NetworkPolicies independent of the CNI. Built for private-node tenant clusters running the built-in Flannel.
+type: application
+version: 0.2.0
+appVersion: "v1.1.2"
+home: https://github.com/kubernetes-sigs/kube-network-policies
+sources:
+  - https://github.com/kubernetes-sigs/kube-network-policies
+keywords:
+  - networkpolicy
+  - flannel
+  - vcluster

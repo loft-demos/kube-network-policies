@@ -1,0 +1,8 @@
+{{- if and .Values.clusterNetworkPolicy.enabled .Values.crds.install }}
+{{- $crd := .Files.Get "files/crds/policy.networking.k8s.io_clusternetworkpolicies.yaml" | fromYaml }}
+{{- if .Values.crds.keep }}
+{{- $_ := set $crd.metadata.annotations "helm.sh/resource-policy" "keep" }}
+{{- end }}
+{{- $_ := set $crd.metadata "labels" (include "knp.labels" . | fromYaml) }}
+{{ toYaml $crd }}
+{{- end }}
